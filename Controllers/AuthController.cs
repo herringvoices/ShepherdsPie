@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ShepherdsPie.Data;
 using ShepherdsPie.Models;
-using ShepherdsPie.Models.DTOs;
+using ShepherdsPie.DTOs;
 
 namespace ShepherdsPie.Controllers;
 

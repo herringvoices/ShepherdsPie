@@ -1,4 +1,4 @@
-namespace ShepherdsPie.Models.DTOs;
+namespace ShepherdsPie.DTOs;
 
 public class RegistrationDTO
 {
