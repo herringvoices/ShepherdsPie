@@ -1,12 +1,24 @@
-import { Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
 import { AuthorizedRoute } from "./auth/AuthorizedRoute";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
+import NavBar from "./NavBar";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
     <Routes>
-      <Route path="/">
+      <Route
+        path="/"
+        element={
+          <>
+            <NavBar
+              loggedInUser={loggedInUser}
+              setLoggedInUser={setLoggedInUser}
+            />
+            <Outlet />
+          </>
+        }
+      >
         <Route
           index
           element={
@@ -53,7 +65,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           <Route
             index
             element={
-              <AuthorizedRoute loggedInUser={loggedInUser}>
+              <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
                 Employees
               </AuthorizedRoute>
             }
@@ -61,7 +73,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           <Route
             path=":id"
             element={
-              <AuthorizedRoute loggedInUser={loggedInUser}>
+              <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
                 Employee Details
               </AuthorizedRoute>
             }
@@ -69,7 +81,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           <Route
             path=":id/edit"
             element={
-              <AuthorizedRoute loggedInUser={loggedInUser}>
+              <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
                 Edit Employee
               </AuthorizedRoute>
             }
@@ -77,7 +89,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           <Route
             path="create"
             element={
-              <AuthorizedRoute loggedInUser={loggedInUser}>
+              <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
                 Create Employee
               </AuthorizedRoute>
             }

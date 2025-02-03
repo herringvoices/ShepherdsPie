@@ -16,8 +16,10 @@ function App() {
     <Spinner animation="border" role="status" />
   ) : (
     <>
-      <NavBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
-      <ApplicationViews loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
+      <ApplicationViews
+        loggedInUser={loggedInUser}
+        setLoggedInUser={setLoggedInUser}
+      />
     </>
   );
 }
