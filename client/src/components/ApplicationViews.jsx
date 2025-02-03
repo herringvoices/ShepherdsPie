@@ -11,12 +11,86 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           index
           element={
             <AuthorizedRoute loggedInUser={loggedInUser}>
-              <>Home</>
+              <>Welcome</>
             </AuthorizedRoute>
           }
         />
-        <Route path="login" element={<Login setLoggedInUser={setLoggedInUser} />} />
-        <Route path="register" element={<Register setLoggedInUser={setLoggedInUser} />} />
+        <Route path="/orders">
+          <Route
+            index
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Orders
+              </AuthorizedRoute>
+            }
+          />
+          <Route
+            path="create"
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Create ORder
+              </AuthorizedRoute>
+            }
+          />
+          <Route
+            path=":id"
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                View Order
+              </AuthorizedRoute>
+            }
+          />
+          <Route
+            path="edit/:id"
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Edit Order
+              </AuthorizedRoute>
+            }
+          />
+        </Route>
+        <Route path="employees">
+          <Route
+            index
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Employees
+              </AuthorizedRoute>
+            }
+          />
+          <Route
+            path=":id"
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Employee Details
+              </AuthorizedRoute>
+            }
+          />
+          <Route
+            path=":id/edit"
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Edit Employee
+              </AuthorizedRoute>
+            }
+          />
+          <Route
+            path="create"
+            element={
+              <AuthorizedRoute loggedInUser={loggedInUser}>
+                Create Employee
+              </AuthorizedRoute>
+            }
+          />
+        </Route>
+        <Route
+          path="login"
+          element={<Login setLoggedInUser={setLoggedInUser} />}
+        />
+        <Route
+          path="register"
+          element={<Register setLoggedInUser={setLoggedInUser} />}
+        />
       </Route>
       <Route path="*" element={<p>Whoops, nothing here...</p>} />
     </Routes>
