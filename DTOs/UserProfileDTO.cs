@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
-namespace ShepherdsPie.Models.DTOs;
+namespace ShepherdsPie.DTOs;
 
 public class UserProfileDTO
 {
