@@ -5,34 +5,33 @@ using ShepherdsPie.DTOs;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ToppingController : ControllerBase
+public class SauceController : ControllerBase
 {
     private ShepherdsPieDbContext _dbContext;
-
-    public ToppingController(ShepherdsPieDbContext context)
+    public SauceController(ShepherdsPieDbContext context)
     {
         _dbContext = context;
     }
+    [HttpGet]
+    [Authorize]
+    public IActionResult GetAll()
+    {
+        try 
+        {
 
-     [HttpGet]
-     [Authorize]
-     public IActionResult GetAll()
-     {
-        try
-        {
+        
         return Ok(_dbContext
-        .Toppings
-        .Select(t => new ToppingDTO
+        .Sauces
+        .Select(s => new SauceDTO
         {
-            Id = t.Id,
-            Name = t.Name,
-            Price = t.Price
+            Id = s.Id,
+            Name = s.Name,
+            Price = s.Price
         }));
         }
-         catch (Exception ex)
+        catch (Exception ex)
         {
            return StatusCode(500, "An unexpected error occurred");
         }
-     }
-
+    }
 }
