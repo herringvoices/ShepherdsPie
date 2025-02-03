@@ -22,6 +22,159 @@ namespace ShepherdsPie.Controllers
             _logger = logger;
         }
 
+        //GET: /api/orders/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderById(int id)
+        {
+            var order = await _context
+                .Orders.Include(o => o.Pizzas)
+                .ThenInclude(p => p.Size)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Cheese)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Sauce)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Toppings)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderDTO = new OrderDTO
+            {
+                Id = order.Id,
+                TableNumber = order.TableNumber,
+                Date = order.Date,
+                TipAmount = order.TipAmount,
+                TookOrderId = order.TookOrderId,
+                DeliveryDriverId = order.DeliveryDriverId,
+                Pizzas = order
+                    .Pizzas.Select(pizza => new PizzaDTO
+                    {
+                        Id = pizza.Id,
+                        OrderId = pizza.OrderId,
+                        Price = pizza.Price,
+                        Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
+                        Cheese = new CheeseDTO { Id = pizza.Cheese.Id, Name = pizza.Cheese.Name },
+                        Sauce = new SauceDTO { Id = pizza.Sauce.Id, Name = pizza.Sauce.Name },
+                        Toppings = pizza
+                            .Toppings.Select(topping => new ToppingDTO
+                            {
+                                Id = topping.Id,
+                                Name = topping.Name,
+                            })
+                            .ToList(),
+                    })
+                    .ToList(),
+            };
+            return Ok(orderDTO);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderDTO orderDto)
+        {
+            if (orderDto == null || orderDto.Id != id)
+            {
+                return BadRequest("Invalid OrderDTO received.");
+            }
+
+            // Retrieve the order along with its pizzas and their related entities
+            var order = await _context
+                .Orders.Include(o => o.Pizzas)
+                .ThenInclude(p => p.Toppings)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Size)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Cheese)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Sauce)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Update order-level properties
+            order.TableNumber = orderDto.TableNumber;
+            order.Date = orderDto.Date;
+            order.TipAmount = orderDto.TipAmount;
+            order.TookOrderId = orderDto.TookOrderId;
+            order.DeliveryDriverId = orderDto.DeliveryDriverId;
+
+            // Remove pizzas that are not present in the incoming DTO
+            var pizzasToRemove = order
+                .Pizzas.Where(p => !orderDto.Pizzas.Any(pd => pd.Id == p.Id))
+                .ToList();
+            _context.Pizzas.RemoveRange(pizzasToRemove);
+
+            // Process each pizza from the DTO
+            foreach (var pizzaDto in orderDto.Pizzas)
+            {
+                // Try to find an existing pizza; if not found, create a new one
+                var pizza = order.Pizzas.FirstOrDefault(p => p.Id == pizzaDto.Id);
+                if (pizza == null)
+                {
+                    pizza = new Pizza { OrderId = order.Id };
+                    order.Pizzas.Add(pizza);
+                    // Alternatively, you could also use: _context.Pizzas.Add(pizza);
+                }
+
+                // Update pizza's non-topping(easy) properties
+                pizza.SizeId = pizzaDto.Size.Id;
+                pizza.CheeseId = pizzaDto.Cheese.Id;
+                pizza.SauceId = pizzaDto.Sauce.Id;
+
+                // Ensure the toppings collection is initialized
+                if (pizza.Toppings == null)
+                {
+                    pizza.Toppings = new List<Topping>();
+                }
+
+                // Convert DTO toppings into a dictionary for quick lookups
+                var dtoToppingDict = pizzaDto.Toppings.ToDictionary(t => t.Id);
+
+                // Remove toppings that are not in the DTO
+                var toppingsToRemove = pizza
+                    .Toppings.Where(t => !dtoToppingDict.ContainsKey(t.Id))
+                    .ToList();
+                foreach (var topping in toppingsToRemove)
+                {
+                    pizza.Toppings.Remove(topping);
+                }
+
+                // Determine which toppings from the DTO need to be added
+                var existingToppingIds = pizza.Toppings.Select(t => t.Id).ToList();
+                foreach (var toppingDto in pizzaDto.Toppings)
+                {
+                    if (!existingToppingIds.Contains(toppingDto.Id))
+                    {
+                        //Add a new topping with just the ID. Using the id means EF Core will know it's an existing topping and will not create a new one.
+                        pizza.Toppings.Add(new Topping { Id = toppingDto.Id });
+                    }
+                }
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database error while updating order.");
+                return StatusCode(500, "A database error occurred while updating the order.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while updating order.");
+                return StatusCode(500, "An unexpected error occurred while updating the order.");
+            }
+
+            return Ok(order);
+        }
+
         // POST: /api/orders
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderDTO orderDto)
@@ -59,7 +212,7 @@ namespace ShepherdsPie.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
             }
             catch (DbUpdateException dbEx)
             {

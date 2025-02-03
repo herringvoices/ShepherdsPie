@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using ShepherdsPie.Data;
 using ShepherdsPie.Models;
 
-
 namespace ShepherdsPie.Controllers;
 
 [ApiController]
