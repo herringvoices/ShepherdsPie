@@ -9,4 +9,5 @@ public class Topping : IPizzaOptions
     [Required]
     public string Name { get; set; }
     public decimal Price { get; set; }
+    public List<Pizza> Pizzas { get; set; }
 }
