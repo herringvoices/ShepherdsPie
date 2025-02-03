@@ -7,7 +7,7 @@ namespace ShepherdsPie.Models
     {
         public int Id { get; set; }
         public int? TableNumber { get; set; }
-        public int Date { get; set; }
+        public DateTime Date { get; set; }
         public int TipAmount { get; set; }
 
         // Required (not optional) property for the user who took the order
