@@ -2,7 +2,7 @@ namespace ShepherdsPie.DTOs
 {
     public class PizzaDTO
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int OrderId { get; set; }
         public decimal Price { get; set; }
         public SizeDTO Size { get; set; }
