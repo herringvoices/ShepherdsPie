@@ -85,7 +85,7 @@ public class UserProfileController : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize]
-    public IActionResult UpdateUser(int id, UserProfile userProfile)
+    public IActionResult UpdateUser(int id, [FromBody] UserProfile userProfile, [FromQuery] string role)
     {
         UserProfile userToUpdate = _dbContext
         .UserProfiles
@@ -112,6 +112,19 @@ public class UserProfileController : ControllerBase
         _dbContext.UserRoles.Remove(oldRole) ;
 
         //add the new role back
-        IdentityUserRole<string> newRole = _dbContext
+        IdentityRole findRole = _dbContext.Roles.SingleOrDefault(r => r.Name == role);
+
+        if (findRole == null)
+        {
+            return BadRequest("Invalid role specified");
+        }
+        
+        _dbContext.UserRoles.Add(new IdentityUserRole<string>
+        {
+            RoleId = findRole.Id,
+            UserId = userToUpdate.IdentityUserId
+        });
+        _dbContext.SaveChanges();
+        return NoContent();
     }
 }
