@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -84,8 +85,8 @@ public class UserProfileController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize]
-    public IActionResult UpdateUser(int id, [FromBody] UserProfile userProfile, [FromQuery] string role)
+    [Authorize (Roles = "Admin")]
+    public IActionResult UpdateUser(int id, [FromBody] UserProfile userProfile, [FromQuery, Required] string role)
     {
         UserProfile userToUpdate = _dbContext
         .UserProfiles
@@ -118,7 +119,7 @@ public class UserProfileController : ControllerBase
         {
             return BadRequest("Invalid role specified");
         }
-        
+
         _dbContext.UserRoles.Add(new IdentityUserRole<string>
         {
             RoleId = findRole.Id,
@@ -126,5 +127,88 @@ public class UserProfileController : ControllerBase
         });
         _dbContext.SaveChanges();
         return NoContent();
+    }
+
+    [HttpPost]
+    [Authorize (Roles = "Admin")]
+    public async Task<IActionResult> NewUser([FromBody] CreateUserDTO createUser)
+    {
+        //creating a new IdentityUser entity
+        IdentityUser identityUser = new IdentityUser
+        {
+            UserName = createUser.UserName,
+            Email = createUser.Email
+        };
+
+        //creating a password hash
+        var passwordHasher = new PasswordHasher<IdentityUser>();
+        identityUser.PasswordHash = passwordHasher.HashPassword(identityUser, createUser.Password);
+
+        //adding and saving IdentityUser to database so Id is generated
+        _dbContext.Users.Add(identityUser);
+        await _dbContext.SaveChangesAsync();
+
+        //finding the role for the new user
+        var userRole = _dbContext.Roles.SingleOrDefault(r => r.Name == createUser.Role);
+        if (userRole == null)
+        {
+            return BadRequest("Role not found");
+        }
+
+        //creating the user profile
+        UserProfile userProfile = new UserProfile
+        {
+            FirstName = createUser.FirstName,
+            LastName = createUser.LastName,
+            Address = createUser.Address,
+            IdentityUserId = identityUser.Id
+        };
+
+        _dbContext.UserProfiles.Add(userProfile);
+        _dbContext.UserRoles.Add(new IdentityUserRole<string>
+        {
+            UserId = identityUser.Id,
+            RoleId = userRole.Id
+        });
+
+        await _dbContext.SaveChangesAsync();
+
+        UserProfileDTO userProfileDTO = new UserProfileDTO
+        {
+            Id = userProfile.Id,
+            FirstName = userProfile.FirstName,
+            LastName = userProfile.LastName,
+            Address = userProfile.Address,
+            Email = userProfile.IdentityUser.Email,
+            UserName = userProfile.IdentityUser.Email,
+            Roles = new List<string> {userRole.Name}
+        };
+
+        return CreatedAtAction(nameof(GetById), new {id = userProfile.Id}, userProfileDTO);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize (Roles = "Admin")]
+    public IActionResult DeleteUser(int id)
+    {
+        UserProfile userToDelete = _dbContext
+        .UserProfiles
+        .Include(up => up.IdentityUser)
+        .SingleOrDefault(up => up.Id == id);
+
+        if (userToDelete == null)
+        {
+            return NotFound("User not found");
+        }
+
+        _dbContext.UserProfiles.Remove(userToDelete);
+
+        _dbContext.Users.Remove(_dbContext.Users.SingleOrDefault(u => u.Id == userToDelete.IdentityUserId));
+        _dbContext.UserRoles.Remove(_dbContext.UserRoles.SingleOrDefault(ur => ur.UserId == userToDelete.IdentityUserId));
+
+        _dbContext.SaveChanges();
+
+        return NoContent();
+
     }
 }

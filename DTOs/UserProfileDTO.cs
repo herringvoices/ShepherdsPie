@@ -17,9 +17,9 @@ public class UserProfileDTO
     public IdentityUser IdentityUser { get; set; }
 }
 
-public class CreateUserDTO
+public class CreateUserDTO : UserProfileDTO
 {
-    public UserProfile UserProfile { get; set; }
+    
     public string Password { get; set; }
     public string Role { get; set; }
 }
