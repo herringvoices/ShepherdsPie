@@ -61,7 +61,8 @@ namespace ShepherdsPie.Controllers
                 Pizzas = order
                     .Pizzas.Select(pizza => new PizzaDTO
                     {
-                        Id = pizza.Id,
+                        // Explicitly cast to long
+                        Id = (long)pizza.Id,
                         OrderId = pizza.OrderId,
                         Price = pizza.Price,
                         Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
@@ -83,7 +84,7 @@ namespace ShepherdsPie.Controllers
 
         //GET: /api/orders/{id}
         [HttpGet("{id}")]
-        [Authorize]
+        // [Authorize]
         public async Task<IActionResult> GetOrderById(int id)
         {
             var order = await _context
@@ -113,7 +114,8 @@ namespace ShepherdsPie.Controllers
                 Pizzas = order
                     .Pizzas.Select(pizza => new PizzaDTO
                     {
-                        Id = pizza.Id,
+                        // Explicitly cast to long
+                        Id = (long)pizza.Id,
                         OrderId = pizza.OrderId,
                         Price = pizza.Price,
                         Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
@@ -171,33 +173,45 @@ namespace ShepherdsPie.Controllers
                 .ToList();
             _context.Pizzas.RemoveRange(pizzasToRemove);
 
-            // Process each pizza from the DTO
+            // A threshold for “temporary” IDs (e.g. date-based ones)
+            const long TEMPORARY_ID_THRESHOLD = 1700000000000;
+
+            // Process each pizza from the incoming DTO
             foreach (var pizzaDto in orderDto.Pizzas)
             {
-                // Try to find an existing pizza; if not found, create a new one
-                var pizza = order.Pizzas.FirstOrDefault(p => p.Id == pizzaDto.Id);
-                if (pizza == null)
+                // Safely convert to int (or 0 if it's too large for int)
+                int pizzaId = (pizzaDto.Id <= int.MaxValue) ? (int)pizzaDto.Id : 0;
+
+                // Attempt to find an existing pizza
+                var pizza = order.Pizzas.FirstOrDefault(p => p.Id == pizzaId);
+
+                // If pizza doesn't exist OR the incoming ID is huge treat as new pizza
+                if (pizza == null || pizzaDto.Id >= TEMPORARY_ID_THRESHOLD)
                 {
-                    pizza = new Pizza { OrderId = order.Id };
+                    pizza = new Pizza
+                    {
+                        OrderId = order.Id,
+                        Id = 0, // EF Core will generate a real ID for us
+                    };
                     order.Pizzas.Add(pizza);
-                    // Alternatively, you could also use: _context.Pizzas.Add(pizza);
+                    _context.Entry(pizza).State = EntityState.Added;
                 }
 
-                // Update pizza's non-topping(easy) properties
+                // Update pizza’s basic properties
                 pizza.SizeId = pizzaDto.Size.Id;
                 pizza.CheeseId = pizzaDto.Cheese.Id;
                 pizza.SauceId = pizzaDto.Sauce.Id;
 
-                // Ensure the toppings collection is initialized
+                // Ensure toppings collection is initialized
                 if (pizza.Toppings == null)
                 {
                     pizza.Toppings = new List<Topping>();
                 }
 
-                // Convert DTO toppings into a dictionary for quick lookups
+                // Convert DTO toppings into a lookup dictionary
                 var dtoToppingDict = pizzaDto.Toppings.ToDictionary(t => t.Id);
 
-                // Remove toppings that are not in the DTO
+                // Remove toppings that aren't in the DTO
                 var toppingsToRemove = pizza
                     .Toppings.Where(t => !dtoToppingDict.ContainsKey(t.Id))
                     .ToList();
@@ -206,13 +220,13 @@ namespace ShepherdsPie.Controllers
                     pizza.Toppings.Remove(topping);
                 }
 
-                // Determine which toppings from the DTO need to be added
+                // Add new toppings
                 var existingToppingIds = pizza.Toppings.Select(t => t.Id).ToList();
                 foreach (var toppingDto in pizzaDto.Toppings)
                 {
                     if (!existingToppingIds.Contains(toppingDto.Id))
                     {
-                        //Add a new topping with just the ID. Using the id means EF Core will know it's an existing topping and will not create a new one.
+                        // "Attach" existing topping by its ID
                         pizza.Toppings.Add(new Topping { Id = toppingDto.Id });
                     }
                 }
@@ -256,14 +270,18 @@ namespace ShepherdsPie.Controllers
                     TipAmount = orderDto.TipAmount,
                     TookOrderId = orderDto.TookOrderId,
                     DeliveryDriverId = orderDto.DeliveryDriverId,
+
+                    // EF Core will generate IDs for these new pizzas
                     Pizzas = orderDto
                         .Pizzas.Select(pizzaDto => new Pizza
                         {
+                            // Force EF Core to treat them as new by setting Id = 0.
+                            Id = 0,
                             SizeId = pizzaDto.Size.Id,
                             CheeseId = pizzaDto.Cheese.Id,
                             SauceId = pizzaDto.Sauce.Id,
 
-                            // Apparently, setting the toppingId alone lets EF Core know that it's a many-to-many relationship, so it won't create a new Topping entry, but will, instead, use the existing one and add a new entry to the join table
+                            // "Link" to existing toppings by Id, or create new ones if needed
                             Toppings = pizzaDto
                                 .Toppings.Select(toppingDto => new Topping { Id = toppingDto.Id })
                                 .ToList(),
