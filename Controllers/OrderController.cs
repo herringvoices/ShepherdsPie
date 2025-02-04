@@ -22,6 +22,63 @@ namespace ShepherdsPie.Controllers
             _logger = logger;
         }
 
+        //         GET All Orders:
+
+        // Route: GET /api/orders
+        // Returns an OrderDTO and uses the provided date to filter orders—excluding orders with dates past the specified value—and orders the results by most recent.
+        [HttpGet]
+        public async Task<IActionResult> GetOrders([FromQuery] string date)
+        {
+            DateTime parsedDate;
+            if (!DateTime.TryParse(date, out parsedDate))
+            {
+                return BadRequest("Invalid date format.");
+            }
+
+            var orders = await _context
+                .Orders.Include(o => o.Pizzas)
+                .ThenInclude(p => p.Size)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Cheese)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Sauce)
+                .Include(o => o.Pizzas)
+                .ThenInclude(p => p.Toppings)
+                .Where(o => o.Date <= parsedDate)
+                .OrderByDescending(o => o.Date)
+                .ToListAsync();
+
+            var orderDTOs = orders.Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                TableNumber = order.TableNumber,
+                Date = order.Date,
+                TipAmount = order.TipAmount,
+                TookOrderId = order.TookOrderId,
+                DeliveryDriverId = order.DeliveryDriverId,
+                Pizzas = order
+                    .Pizzas.Select(pizza => new PizzaDTO
+                    {
+                        Id = pizza.Id,
+                        OrderId = pizza.OrderId,
+                        Price = pizza.Price,
+                        Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
+                        Cheese = new CheeseDTO { Id = pizza.Cheese.Id, Name = pizza.Cheese.Name },
+                        Sauce = new SauceDTO { Id = pizza.Sauce.Id, Name = pizza.Sauce.Name },
+                        Toppings = pizza
+                            .Toppings.Select(topping => new ToppingDTO
+                            {
+                                Id = topping.Id,
+                                Name = topping.Name,
+                            })
+                            .ToList(),
+                    })
+                    .ToList(),
+            });
+
+            return Ok(orderDTOs);
+        }
+
         //GET: /api/orders/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
@@ -224,6 +281,20 @@ namespace ShepherdsPie.Controllers
                 _logger.LogError(ex, "Unexpected error while creating order.");
                 return StatusCode(500, "An unexpected error occurred.");
             }
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
