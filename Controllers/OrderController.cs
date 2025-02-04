@@ -185,7 +185,7 @@ namespace ShepherdsPie.Controllers
                 // Attempt to find an existing pizza
                 var pizza = order.Pizzas.FirstOrDefault(p => p.Id == pizzaId);
 
-                // If pizza doesn't exist OR the incoming ID is huge ⇒ treat as new pizza
+                // If pizza doesn't exist OR the incoming ID is huge treat as new pizza
                 if (pizza == null || pizzaDto.Id >= TEMPORARY_ID_THRESHOLD)
                 {
                     pizza = new Pizza
