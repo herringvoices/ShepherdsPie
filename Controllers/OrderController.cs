@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace ShepherdsPie.Controllers
         // Route: GET /api/orders
         // Returns an OrderDTO and uses the provided date to filter orders—excluding orders with dates past the specified value—and orders the results by most recent.
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetOrders([FromQuery] string date)
         {
             DateTime parsedDate;
@@ -81,6 +83,7 @@ namespace ShepherdsPie.Controllers
 
         //GET: /api/orders/{id}
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetOrderById(int id)
         {
             var order = await _context
@@ -130,6 +133,7 @@ namespace ShepherdsPie.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderDTO orderDto)
         {
             if (orderDto == null || orderDto.Id != id)
@@ -234,6 +238,7 @@ namespace ShepherdsPie.Controllers
 
         // POST: /api/orders
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateOrder([FromBody] OrderDTO orderDto)
         {
             if (orderDto == null || orderDto.Pizzas == null || !orderDto.Pizzas.Any())
@@ -282,7 +287,9 @@ namespace ShepherdsPie.Controllers
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
+
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             var order = await _context.Orders.FindAsync(id);
