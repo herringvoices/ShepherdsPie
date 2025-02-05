@@ -1,9 +1,7 @@
 //fetches orders by date. Accepts dates as a string in YYYY-MM-DD format
 export async function getOrdersByDate(date) {
   try {
-    const response = await fetch(
-      `/api/orders?date=${encodeURIComponent(date)}`
-    );
+    const response = await fetch(`/api/orders?date=${date}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

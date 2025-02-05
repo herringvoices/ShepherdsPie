@@ -3,6 +3,7 @@ import { AuthorizedRoute } from "./auth/AuthorizedRoute";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import NavBar from "./NavBar";
+import { OrderList } from "./orders/OrderList";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
@@ -32,7 +33,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             index
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                Orders
+                <OrderList />
               </AuthorizedRoute>
             }
           />
