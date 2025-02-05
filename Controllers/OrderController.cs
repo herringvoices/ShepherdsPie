@@ -38,7 +38,9 @@ namespace ShepherdsPie.Controllers
             }
 
             var orders = await _context
-                .Orders.Include(o => o.Pizzas)
+                .Orders
+                
+                .Include(o => o.Pizzas)
                 .ThenInclude(p => p.Size)
                 .Include(o => o.Pizzas)
                 .ThenInclude(p => p.Cheese)
@@ -46,6 +48,10 @@ namespace ShepherdsPie.Controllers
                 .ThenInclude(p => p.Sauce)
                 .Include(o => o.Pizzas)
                 .ThenInclude(p => p.Toppings)
+                .Include(o => o.TookOrder)
+                .ThenInclude(to => to.IdentityUser)
+                .Include(o => o.DeliveryDriver)
+                .ThenInclude(dd => dd.IdentityUser)
                 .Where(o => o.Date <= parsedDate)
                 .OrderByDescending(o => o.Date)
                 .ToListAsync();
@@ -58,7 +64,23 @@ namespace ShepherdsPie.Controllers
                 TipAmount = order.TipAmount,
                 Total = order.Total, // Uses the computed property from Order Model
                 TookOrderId = order.TookOrderId,
+                TookOrder = new UserProfileDTO
+                {
+                    Id = order.TookOrder.Id,
+                    FirstName = order.TookOrder.FirstName,
+                    LastName = order.TookOrder.LastName,
+                    Address = order.TookOrder.Address,
+                    Email = order.TookOrder.IdentityUser.Email
+                },
                 DeliveryDriverId = order.DeliveryDriverId,
+                DeliveryDriver = order.DeliveryDriver != null ? new UserProfileDTO
+                {
+                    Id = order.DeliveryDriver.Id,
+                    FirstName = order.DeliveryDriver.FirstName,
+                    LastName = order.DeliveryDriver.LastName,
+                    Address = order.DeliveryDriver.Address,
+                     Email = order.DeliveryDriver.IdentityUser.Email
+                } : null,
                 Pizzas = order
                     .Pizzas.Select(pizza => new PizzaDTO
                     {
