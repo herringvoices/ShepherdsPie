@@ -6,6 +6,7 @@ import NavBar from "./NavBar";
 import { OrderList } from "./orders/OrderList";
 import { EmployeeForm } from "./Employees/EmployeeForm";
 import { useState } from "react";
+import { EmployeeList } from "./Employees/EmployeeList";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   const [edit, setEdit] = useState(false);
@@ -70,7 +71,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             index
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Employees
+                <EmployeeList />
               </AuthorizedRoute>
             }
           />
