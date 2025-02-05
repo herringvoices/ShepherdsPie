@@ -4,8 +4,11 @@ import Login from "./auth/Login";
 import Register from "./auth/Register";
 import NavBar from "./NavBar";
 import { OrderList } from "./orders/OrderList";
+import { EmployeeForm } from "./Employees/EmployeeForm";
+import { useState } from "react";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
+  const [edit, setEdit] = useState(false);
   return (
     <Routes>
       <Route
@@ -83,7 +86,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path=":id/edit"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Edit Employee
+                <EmployeeForm edit={true} setEdit={setEdit} />
               </AuthorizedRoute>
             }
           />
@@ -91,7 +94,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path="create"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Create Employee
+                <EmployeeForm edit={false} setEdit={setEdit} />
               </AuthorizedRoute>
             }
           />
