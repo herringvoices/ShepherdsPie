@@ -1,5 +1,5 @@
 //GET all toppings
-const getAllToppings = async () => {
+export const getAllToppings = async () => {
   try {
     const response = await fetch("/api/toppings");
     if (!response.ok) {
@@ -12,7 +12,7 @@ const getAllToppings = async () => {
   }
 };
 //GET all sizes
-const getAllSizes = async () => {
+export const getAllSizes = async () => {
   try {
     const response = await fetch("/api/sizes");
     if (!response.ok) {
@@ -25,7 +25,7 @@ const getAllSizes = async () => {
   }
 };
 //GET all cheeses
-const getAllCheeses = async () => {
+export const getAllCheeses = async () => {
   try {
     const response = await fetch("/api/cheeses");
     if (!response.ok) {
@@ -38,7 +38,7 @@ const getAllCheeses = async () => {
   }
 };
 //GET all sauces
-const getAllSauces = async () => {
+export const getAllSauces = async () => {
   try {
     const response = await fetch("/api/sauces");
     if (!response.ok) {

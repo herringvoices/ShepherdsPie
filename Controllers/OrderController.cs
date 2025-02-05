@@ -56,6 +56,7 @@ namespace ShepherdsPie.Controllers
                 TableNumber = order.TableNumber,
                 Date = order.Date,
                 TipAmount = order.TipAmount,
+                Total = order.Total, // Uses the computed property from Order Model
                 TookOrderId = order.TookOrderId,
                 DeliveryDriverId = order.DeliveryDriverId,
                 Pizzas = order
@@ -65,14 +66,30 @@ namespace ShepherdsPie.Controllers
                         Id = (long)pizza.Id,
                         OrderId = pizza.OrderId,
                         Price = pizza.Price,
-                        Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
-                        Cheese = new CheeseDTO { Id = pizza.Cheese.Id, Name = pizza.Cheese.Name },
-                        Sauce = new SauceDTO { Id = pizza.Sauce.Id, Name = pizza.Sauce.Name },
+                        Size = new SizeDTO
+                        {
+                            Id = pizza.Size.Id,
+                            Name = pizza.Size.Name,
+                            Price = pizza.Size.Price,
+                        },
+                        Cheese = new CheeseDTO
+                        {
+                            Id = pizza.Cheese.Id,
+                            Name = pizza.Cheese.Name,
+                            Price = pizza.Cheese.Price,
+                        },
+                        Sauce = new SauceDTO
+                        {
+                            Id = pizza.Sauce.Id,
+                            Name = pizza.Sauce.Name,
+                            Price = pizza.Sauce.Price,
+                        },
                         Toppings = pizza
                             .Toppings.Select(topping => new ToppingDTO
                             {
                                 Id = topping.Id,
                                 Name = topping.Name,
+                                Price = topping.Price,
                             })
                             .ToList(),
                     })
@@ -108,6 +125,7 @@ namespace ShepherdsPie.Controllers
                 Id = order.Id,
                 TableNumber = order.TableNumber,
                 Date = order.Date,
+                Total = order.Total, // Uses the computed property from Order Model
                 TipAmount = order.TipAmount,
                 TookOrderId = order.TookOrderId,
                 DeliveryDriverId = order.DeliveryDriverId,
@@ -118,14 +136,30 @@ namespace ShepherdsPie.Controllers
                         Id = (long)pizza.Id,
                         OrderId = pizza.OrderId,
                         Price = pizza.Price,
-                        Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
-                        Cheese = new CheeseDTO { Id = pizza.Cheese.Id, Name = pizza.Cheese.Name },
-                        Sauce = new SauceDTO { Id = pizza.Sauce.Id, Name = pizza.Sauce.Name },
+                        Size = new SizeDTO
+                        {
+                            Id = pizza.Size.Id,
+                            Name = pizza.Size.Name,
+                            Price = pizza.Size.Price,
+                        },
+                        Cheese = new CheeseDTO
+                        {
+                            Id = pizza.Cheese.Id,
+                            Name = pizza.Cheese.Name,
+                            Price = pizza.Cheese.Price,
+                        },
+                        Sauce = new SauceDTO
+                        {
+                            Id = pizza.Sauce.Id,
+                            Name = pizza.Sauce.Name,
+                            Price = pizza.Sauce.Price,
+                        },
                         Toppings = pizza
                             .Toppings.Select(topping => new ToppingDTO
                             {
                                 Id = topping.Id,
                                 Name = topping.Name,
+                                Price = topping.Price,
                             })
                             .ToList(),
                     })

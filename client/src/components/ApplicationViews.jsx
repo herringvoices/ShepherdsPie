@@ -3,6 +3,8 @@ import { AuthorizedRoute } from "./auth/AuthorizedRoute";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import NavBar from "./NavBar";
+import CreateOrder from "./Orders/CreateOrder";
+import { Container } from "react-bootstrap";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
@@ -15,7 +17,9 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
               loggedInUser={loggedInUser}
               setLoggedInUser={setLoggedInUser}
             />
+            <Container className="pt-5">
             <Outlet />
+            </Container>
           </>
         }
       >
@@ -40,7 +44,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path="create"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                Create ORder
+                <CreateOrder loggedInUser={loggedInUser} />
               </AuthorizedRoute>
             }
           />

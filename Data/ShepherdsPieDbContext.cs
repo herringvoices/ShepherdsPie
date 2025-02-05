@@ -185,7 +185,7 @@ public class ShepherdsPieDbContext : IdentityDbContext<IdentityUser>
                     Id = 1,
                     TableNumber = 2,
                     Date = new DateTime(2024, 1, 12),
-                    TipAmount = 4,
+                    TipAmount = 4.00m,
                     TookOrderId = 1,
                     DeliveryDriverId = null,
                 },
@@ -194,7 +194,7 @@ public class ShepherdsPieDbContext : IdentityDbContext<IdentityUser>
                     Id = 2,
                     TableNumber = null,
                     Date = new DateTime(2025, 2, 1),
-                    TipAmount = 1,
+                    TipAmount = 1.00m,
                     TookOrderId = 2,
                     DeliveryDriverId = 1,
                 }
