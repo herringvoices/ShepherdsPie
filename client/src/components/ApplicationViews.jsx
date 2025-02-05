@@ -4,6 +4,7 @@ import Login from "./auth/Login";
 import Register from "./auth/Register";
 import NavBar from "./NavBar";
 import { OrderList } from "./orders/OrderList";
+import { EmployeeList } from "./Employees/EmployeeList";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
@@ -67,7 +68,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             index
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Employees
+                <EmployeeList />
               </AuthorizedRoute>
             }
           />
