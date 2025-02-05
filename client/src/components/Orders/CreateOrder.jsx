@@ -69,30 +69,45 @@ function CreateOrder({ loggedInUser, edit }) {
     const toppings = await getAllToppings();
     setToppings(toppings);
   };
+  async function checkIsEdit() {
+    if (edit) {
+      try {
+        const res = await getOrderById(id);
+        setOrder(res);
+        if (res.deliveryDriverId != null) {
+          setIsDelivery(true);
+        }
+      } catch (error) {
+        console.error("Error updating order:", error);
+      }
+    }
+  }
 
   //Initial Render
   useEffect(() => {
-    if (edit) {
-      getOrderById(id).then(setOrder);
-    }
     getAndSet();
+    checkIsEdit();
   }, [id, edit]);
 
   //When Delivery is toggled
   useEffect(() => {
-    if (isDelivery) {
-      setOrder({
-        ...order,
-        deliveryDriverId: 1,
-        tableNumber: null,
-      });
-    } else {
-      setOrder({
-        ...order,
-        deliveryDriverId: null,
-        tableNumber: 1,
-      });
-    }
+    setOrder((prevOrder) => {
+      if (isDelivery) {
+        return {
+          ...prevOrder,
+          // When switching to delivery, only set a default driver if one isn't already set
+          deliveryDriverId: prevOrder.deliveryDriverId || 1,
+          tableNumber: null,
+        };
+      } else {
+        return {
+          ...prevOrder,
+          // When switching to in-person, null out the delivery driver
+          deliveryDriverId: null,
+          tableNumber: 1,
+        };
+      }
+    });
   }, [isDelivery]);
 
   //When the Add Pizza button is clicked
@@ -182,16 +197,15 @@ function CreateOrder({ loggedInUser, edit }) {
                 <>
                   <Form.Label>Delivery Driver</Form.Label>
                   <Form.Select
-                    value={order.deliveryDriverId ?? ""} //Convert null to '' so React doesn't yell at me.
+                    value={order.deliveryDriverId}
                     onChange={(e) =>
                       setOrder({
                         ...order,
                         deliveryDriverId:
-                          e.target.value === "" ? null : e.target.value, //Convert back to null for backend.
+                          e.target.value === "" ? null : e.target.value,
                       })
                     }
                   >
-                    <option value="">Select a Driver</option>
                     {employees.map((employee) => (
                       <option key={employee.id} value={employee.id}>
                         {employee?.firstName}
