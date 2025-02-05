@@ -15,6 +15,7 @@ export default function NavBar({ loggedInUser, setLoggedInUser }) {
         <Nav.Item>
           <Nav.Link href="/orders/create">Create Order</Nav.Link>
         </Nav.Item>
+
         <Nav.Item>
           <Nav.Link href="/employees">Employees</Nav.Link>
         </Nav.Item>
