@@ -1,7 +1,7 @@
 //GET all toppings
 export const getAllToppings = async () => {
   try {
-    const response = await fetch("/api/toppings");
+    const response = await fetch("/api/topping");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -14,7 +14,7 @@ export const getAllToppings = async () => {
 //GET all sizes
 export const getAllSizes = async () => {
   try {
-    const response = await fetch("/api/sizes");
+    const response = await fetch("/api/size");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -27,7 +27,7 @@ export const getAllSizes = async () => {
 //GET all cheeses
 export const getAllCheeses = async () => {
   try {
-    const response = await fetch("/api/cheeses");
+    const response = await fetch("/api/cheese");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -40,7 +40,7 @@ export const getAllCheeses = async () => {
 //GET all sauces
 export const getAllSauces = async () => {
   try {
-    const response = await fetch("/api/sauces");
+    const response = await fetch("/api/sauce");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }

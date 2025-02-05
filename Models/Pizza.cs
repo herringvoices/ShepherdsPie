@@ -22,11 +22,13 @@ public class Pizza
     {
         get
         {
-            decimal price = Size.Price + Cheese.Price + Sauce.Price;
-            foreach (var topping in Toppings)
+            decimal price = (Size?.Price ?? 0) + (Cheese?.Price ?? 0) + (Sauce?.Price ?? 0);
+
+            foreach (var topping in Toppings ?? new List<Topping>()) //Prevents null reference
             {
                 price += topping.Price;
             }
+
             return price;
         }
     }

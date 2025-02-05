@@ -31,11 +31,21 @@ namespace ShepherdsPie.Models
             get
             {
                 decimal total = 0;
-                foreach (var pizza in Pizzas)
+
+                // Ensure Pizzas is not null before iterating
+                foreach (var pizza in Pizzas ?? new List<Pizza>())
                 {
                     total += pizza.Price;
                 }
+
                 total += TipAmount;
+
+                // Add $5 if DeliveryDriverId is not null (indicating a delivery order)
+                if (DeliveryDriverId.HasValue)
+                {
+                    total += 5;
+                }
+
                 return total;
             }
         }
