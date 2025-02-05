@@ -23,7 +23,6 @@ export const OrderList = () => {
   useEffect(() => {
     const formattedDate = date.split("T")[0];
     getOrdersByDate(formattedDate).then(setOrders);
-    //console.log(convertedDate);
   }, [date]);
 
   const convertToDollars = (price) => {
@@ -123,7 +122,16 @@ export const OrderList = () => {
           <p>Are you sure you want to delete this order?</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={() => deleteOrder(selectedOrderId)}>
+          <Button
+            variant="danger"
+            onClick={() => {
+              deleteOrder(selectedOrderId).then(() => {
+                const formattedDate = date.split("T")[0];
+                getOrdersByDate(formattedDate).then(setOrders);
+                setShow(false);
+              });
+            }}
+          >
             Delete
           </Button>
           <Button variant="secondary" onClick={() => setShow(false)}>

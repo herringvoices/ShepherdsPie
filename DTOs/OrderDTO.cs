@@ -6,7 +6,6 @@ namespace ShepherdsPie.DTOs
         public int? TableNumber { get; set; }
         public DateTime Date { get; set; }
         public int TipAmount { get; set; }
-        //public decimal Total { get; set; } // Uses the computed property from Order.cs
         public decimal Total
         {
             get
