@@ -18,6 +18,7 @@ export async function getOrdersByDate(date) {
 export async function getOrderById(id) {
   try {
     const response = await fetch(`/api/orders/${id}`);
+    return await response.json();
   } catch (error) {
     console.error("Error fetching order:", error);
     return null;

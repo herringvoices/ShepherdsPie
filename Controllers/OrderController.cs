@@ -37,6 +37,10 @@ namespace ShepherdsPie.Controllers
                 return BadRequest("Invalid date format.");
             }
 
+            // Add one day so that the filter includes orders on the submitted date.
+            // This effectively sets the filter to all orders with a Date earlier than midnight of the next day.
+            DateTime filterDate = parsedDate.AddDays(1);
+
             var orders = await _context
                 .Orders.Include(o => o.Pizzas)
                 .ThenInclude(p => p.Size)
@@ -50,7 +54,7 @@ namespace ShepherdsPie.Controllers
                 .ThenInclude(to => to.IdentityUser)
                 .Include(o => o.DeliveryDriver)
                 .ThenInclude(dd => dd.IdentityUser)
-                .Where(o => o.Date <= parsedDate)
+                .Where(o => o.Date < filterDate) // Using "<" to include all orders from the submitted day
                 .OrderByDescending(o => o.Date)
                 .ToListAsync();
 

@@ -20,7 +20,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
               setLoggedInUser={setLoggedInUser}
             />
             <Container className="pt-5">
-            <Outlet />
+              <Outlet />
             </Container>
           </>
         }
@@ -59,10 +59,10 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             }
           />
           <Route
-            path="edit/:id"
+            path=":id/edit"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                Edit Order
+                <CreateOrder edit={true} loggedInUser={loggedInUser} />
               </AuthorizedRoute>
             }
           />

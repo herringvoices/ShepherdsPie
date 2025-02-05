@@ -54,7 +54,8 @@ function CreateOrder({ loggedInUser, edit }) {
 
   const [employees, setEmployees] = useState([]);
   const [isDelivery, setIsDelivery] = useState(false);
-  const { orderId } = useParams();
+  const [total, setTotal] = useState(0);
+  const { id } = useParams();
 
   const getAndSet = async () => {
     const employees = await getAllUserProfiles();
@@ -72,10 +73,10 @@ function CreateOrder({ loggedInUser, edit }) {
   //Initial Render
   useEffect(() => {
     if (edit) {
-      getOrderById(orderId).then(setOrder);
+      getOrderById(id).then(setOrder);
     }
     getAndSet();
-  }, []);
+  }, [id, edit]);
 
   //When Delivery is toggled
   useEffect(() => {
@@ -129,9 +130,39 @@ function CreateOrder({ loggedInUser, edit }) {
     }
   };
 
+  useEffect(() => {
+    // Calculate the total for all pizzas.
+    const pizzaTotal = (order.pizzas ?? []).reduce((pizzaAcc, pizza) => {
+      // Calculate each pizza's price.
+      const sizePrice = pizza.size?.price ?? 0;
+      const cheesePrice = pizza.cheese?.price ?? 0;
+      const saucePrice = pizza.sauce?.price ?? 0;
+
+      // Sum up the toppings prices.
+      const toppingsPrice = (pizza.toppings ?? []).reduce(
+        (toppingAcc, topping) => toppingAcc + (topping.price ?? 0),
+        0
+      );
+
+      return pizzaAcc + sizePrice + cheesePrice + saucePrice + toppingsPrice;
+    }, 0);
+
+    // Tip amount, defaulting to 0 if null/undefined.
+    const tip = order.tipAmount ?? 0;
+
+    // Add $5 for delivery if deliveryDriverId is set (i.e. not null)
+    const deliveryFee = order.deliveryDriverId != null ? 5 : 0;
+
+    // Final total calculation.
+    const computedTotal = pizzaTotal + tip + deliveryFee;
+
+    // Set the total state.
+    setTotal(computedTotal);
+  }, [order]); // Run this effect whenever 'order' changes.
+
   return (
     <Container>
-      <h1 className="mt-2">Create Order</h1>
+      <h1 className="mt-2">{!edit ? "Create Order" : "Edit Order"}</h1>
       <Form>
         <Row className="mt-3">
           <Col md={2} className="my-auto">
@@ -151,9 +182,13 @@ function CreateOrder({ loggedInUser, edit }) {
                 <>
                   <Form.Label>Delivery Driver</Form.Label>
                   <Form.Select
-                    value={order.deliveryDriverId}
+                    value={order.deliveryDriverId ?? ""} //Convert null to '' so React doesn't yell at me.
                     onChange={(e) =>
-                      setOrder({ ...order, deliveryDriverId: e.target.value })
+                      setOrder({
+                        ...order,
+                        deliveryDriverId:
+                          e.target.value === "" ? null : e.target.value, //Convert back to null for backend.
+                      })
                     }
                   >
                     <option value="">Select a Driver</option>
@@ -171,14 +206,15 @@ function CreateOrder({ loggedInUser, edit }) {
                     <InputGroupText>Table</InputGroupText>
                     <Form.Control
                       type="number"
-                      step="1"
-                      min="1"
-                      max="10"
-                      value={order.tableNumber}
+                      value={order.tableNumber ?? ""} // If tableNumber is null, display ""
                       onChange={(e) =>
                         setOrder({
                           ...order,
-                          tableNumber: parseInt(e.target.value) || 0,
+                          // If the user clears the field, store null; otherwise, store the number
+                          tableNumber:
+                            e.target.value === ""
+                              ? null
+                              : parseInt(e.target.value, 10),
                         })
                       }
                     />
@@ -196,7 +232,7 @@ function CreateOrder({ loggedInUser, edit }) {
                   type="number"
                   step="0.01"
                   min="0"
-                  value={order.tipAmount}
+                  value={order?.tipAmount ?? ""} // Fallback to an empty string if tipAmount is null/undefined
                   onChange={(e) =>
                     setOrder({
                       ...order,
@@ -209,7 +245,7 @@ function CreateOrder({ loggedInUser, edit }) {
           </Col>
           <Col md={4}>
             <h3>Total</h3>
-            <p>Total</p>
+            <p>{total}</p>
           </Col>
         </Row>
         <Row>
@@ -226,7 +262,7 @@ function CreateOrder({ loggedInUser, edit }) {
           </h2>
         </Row>
         <Row>
-          {order.pizzas?.map((pizza) => (
+          {order?.pizzas?.map((pizza) => (
             <Pizza
               key={pizza.id}
               pizza={pizza}
