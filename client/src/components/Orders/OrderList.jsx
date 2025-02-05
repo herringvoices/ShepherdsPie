@@ -20,9 +20,14 @@ export const OrderList = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const formatDate = (date) => {
     const formattedDate = date.split("T")[0];
-    getOrdersByDate(formattedDate).then(setOrders);
+    setDate(formattedDate);
+  };
+
+  useEffect(() => {
+    formatDate(date);
+    getOrdersByDate(date).then(setOrders);
   }, [date]);
 
   const convertToDollars = (price) => {
@@ -116,7 +121,7 @@ export const OrderList = () => {
       ))}
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete Order# {selectedOrderId}?</Modal.Title>
+          <Modal.Title>Delete Order #{selectedOrderId}?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>Are you sure you want to delete this order?</p>
@@ -126,8 +131,7 @@ export const OrderList = () => {
             variant="danger"
             onClick={() => {
               deleteOrder(selectedOrderId).then(() => {
-                const formattedDate = date.split("T")[0];
-                getOrdersByDate(formattedDate).then(setOrders);
+                getOrdersByDate(date).then(setOrders);
                 setShow(false);
               });
             }}
