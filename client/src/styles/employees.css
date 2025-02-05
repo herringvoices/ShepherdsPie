@@ -1,0 +1,11 @@
+.employees-container {
+  width: 100rem;
+}
+.employee-card {
+  width: 35rem;
+  padding: 1rem;
+  cursor: pointer;
+}
+.employee-card:hover {
+  box-shadow: 0 0 0.1rem gray;
+}

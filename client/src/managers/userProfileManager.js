@@ -24,3 +24,19 @@ export const getUserProfileById = async (id) => {
     return null;
   }
 };
+
+//DELETE user profile
+export const deleteUserProfile = async (userId) => {
+  try {
+    const response = await fetch(`/api/userprofile/${userId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting user", error);
+    return null;
+  }
+};

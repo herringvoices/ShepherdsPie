@@ -6,6 +6,7 @@ import NavBar from "./NavBar";
 import CreateOrder from "./Orders/CreateOrder";
 import { Container } from "react-bootstrap";
 import { OrderList } from "./orders/OrderList";
+import { EmployeeList } from "./Employees/EmployeeList";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
@@ -71,7 +72,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             index
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Employees
+                <EmployeeList />
               </AuthorizedRoute>
             }
           />
