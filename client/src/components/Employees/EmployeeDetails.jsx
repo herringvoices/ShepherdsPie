@@ -30,13 +30,10 @@ export const EmployeeDetails = () => {
     <div className="container">
       <h1 className="mt-5">Employee Details</h1>
       <Card className="mt-5 employee-details-card">
-        <Card.Title>{employee.firstName + " " + employee.lastName}</Card.Title>
-        <Button
-          className="btn employee-details-edit"
-          onClick={() => navigate(`/employees/${id}/edit`)}
-        >
-          Edit
-        </Button>
+        <Card.Title>
+          <h2>{employee.firstName + " " + employee.lastName}</h2>
+        </Card.Title>
+
         <Card.Body>
           <Card.Text>
             <strong>Address:</strong> {employee.address}
@@ -48,6 +45,13 @@ export const EmployeeDetails = () => {
             <strong>Current Role: </strong>
             {employee.roles}
           </Card.Text>
+          <Button
+            variant="primary"
+            className="me-2"
+            onClick={() => navigate(`/employees/${id}/edit`)}
+          >
+            Edit
+          </Button>
           <Button variant="danger" onClick={() => setShow(true)}>
             Delete
           </Button>

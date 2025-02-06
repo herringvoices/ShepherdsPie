@@ -8,32 +8,46 @@ export default function NavBar({ loggedInUser, setLoggedInUser }) {
       <Navbar.Brand as={NavLink} to="/" className="mx-5">
         <Image src="/public/shepherdlogo.png" style={{ width: "75px" }} />
       </Navbar.Brand>
-      <Nav activeKey={"/orders"}>
-        <Nav.Item>
-          <Nav.Link href="/orders">Orders</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link href="/orders/create">Create Order</Nav.Link>
-        </Nav.Item>
 
-        <Nav.Item>
-          <Nav.Link href="/employees">Employees</Nav.Link>
-        </Nav.Item>
-      </Nav>
-      <Nav className="ms-auto mx-5">
-        {loggedInUser ? (
-          <Button
-            variant="outline-danger"
-            onClick={() => logout().then(() => setLoggedInUser(null))}
-          >
-            Logout
-          </Button>
-        ) : (
-          <Nav.Link as={NavLink} to="/login">
-            <Button variant="outline-primary">Login</Button>
-          </Nav.Link>
-        )}
-      </Nav>
+      {/* This is the toggle button for mobile screens */}
+      <Navbar.Toggle aria-controls="navbar-nav" />
+
+      {/* Everything inside the collapse will be hidden on small screens */}
+      <Navbar.Collapse id="navbar-nav">
+        <Nav className="me-auto" activeKey={"/orders"}>
+          <Nav.Item>
+            <Nav.Link as={NavLink} to="/orders">
+              Orders
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link as={NavLink} to="/orders/create">
+              Create Order
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link as={NavLink} to="/employees">
+              Employees
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+
+        {/* Right-aligned items */}
+        <Nav className="mx-5">
+          {loggedInUser ? (
+            <Button
+              variant="outline-danger"
+              onClick={() => logout().then(() => setLoggedInUser(null))}
+            >
+              Logout
+            </Button>
+          ) : (
+            <Nav.Link as={NavLink} to="/login">
+              <Button variant="outline-primary">Login</Button>
+            </Nav.Link>
+          )}
+        </Nav>
+      </Navbar.Collapse>
     </Navbar>
   );
 }

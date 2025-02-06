@@ -3,9 +3,10 @@ import {
   deleteUserProfile,
   getAllUserProfiles,
 } from "../../managers/userProfileManager";
-import { Button, Card, Col, Modal, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 import "../../styles/employees.css";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -27,13 +28,20 @@ export const EmployeeList = () => {
     });
   };
   return (
-    <div className="container employees-container">
-      <Button
-        className=" add-employee-btn"
-        onClick={() => navigate("/employees/create")}
-      >
-        Add Employee
-      </Button>
+    <Container>
+      <Row className="my-3 mx-auto">
+        <Col className="mx-auto">
+          <h1>Employee List</h1>
+        </Col>
+        <Col md={2}className="my-auto ">
+          <Button
+            variant="primary"
+            onClick={() => navigate("/employees/create")}
+          >
+           <FontAwesomeIcon icon="plus" />
+          </Button>
+        </Col>
+      </Row>
       <Row>
         {employees.map((employee) => (
           <Col key={employee.id}>
@@ -102,6 +110,6 @@ export const EmployeeList = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+    </Container>
   );
 };
