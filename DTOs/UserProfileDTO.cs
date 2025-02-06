@@ -21,5 +21,5 @@ public class CreateUserDTO : UserProfileDTO
 {
     
     public string Password { get; set; }
-    public string Role { get; set; }
+    
 }
