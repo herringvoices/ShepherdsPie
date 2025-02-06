@@ -9,6 +9,7 @@ import { OrderList } from "./orders/OrderList";
 import { EmployeeForm } from "./Employees/EmployeeForm";
 import { useState } from "react";
 import { EmployeeList } from "./Employees/EmployeeList";
+import OrderDetails from "./Orders/OrderDetails";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   const [edit, setEdit] = useState(false);
@@ -57,7 +58,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path=":id"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                View Order
+                <OrderDetails loggedInUser={loggedInUser} />
               </AuthorizedRoute>
             }
           />
