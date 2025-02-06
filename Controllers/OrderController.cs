@@ -140,6 +140,10 @@ namespace ShepherdsPie.Controllers
                 .ThenInclude(p => p.Sauce)
                 .Include(o => o.Pizzas)
                 .ThenInclude(p => p.Toppings)
+                .Include(o => o.TookOrder)
+                .ThenInclude(to => to.IdentityUser)
+                .Include(o => o.DeliveryDriver)
+                .ThenInclude(dd => dd.IdentityUser)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
@@ -155,7 +159,26 @@ namespace ShepherdsPie.Controllers
                 Total = order.Total, // Uses the computed property from Order Model
                 TipAmount = order.TipAmount,
                 TookOrderId = order.TookOrderId,
+                TookOrder = new UserProfileDTO
+                {
+                    Id = order.TookOrder.Id,
+                    FirstName = order.TookOrder.FirstName,
+                    LastName = order.TookOrder.LastName,
+                    Address = order.TookOrder.Address,
+                    Email = order.TookOrder.IdentityUser.Email,
+                },
                 DeliveryDriverId = order.DeliveryDriverId,
+                DeliveryDriver =
+                    order.DeliveryDriver != null
+                        ? new UserProfileDTO
+                        {
+                            Id = order.DeliveryDriver.Id,
+                            FirstName = order.DeliveryDriver.FirstName,
+                            LastName = order.DeliveryDriver.LastName,
+                            Address = order.DeliveryDriver.Address,
+                            Email = order.DeliveryDriver.IdentityUser.Email,
+                        }
+                        : null,
                 Pizzas = order
                     .Pizzas.Select(pizza => new PizzaDTO
                     {
