@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getOrderById } from "../../managers/orderManager";
+import { useNavigate, useParams } from "react-router-dom";
+import { deleteOrder, getOrderById } from "../../managers/orderManager";
 import { Container, Row, Col, Table, Button } from "react-bootstrap";
 import PizzaDetails from "./PizzaDetails";
 
@@ -8,6 +8,8 @@ function OrderDetails() {
   const { id } = useParams();
   const [order, setOrder] = useState({});
   const [orderDate, setOrderDate] = useState(null);
+
+  const navigate = useNavigate();
 
   async function getAndSetOrder(id) {
     try {
@@ -35,10 +37,22 @@ function OrderDetails() {
           <h1>Order Details</h1>
         </Col>
         <Col xs={2} className="text-end d-flex flex-column ">
-          <Button className="my-1" variant="warning">
+          <Button
+            className="my-1"
+            variant="primary"
+            onClick={() => navigate(`/orders/${id}/edit`)}
+          >
             Edit
           </Button>
-          <Button className="my-1" variant="danger">
+          <Button
+            className="my-1"
+            variant="danger"
+            onClick={() => {
+              deleteOrder(id).then(() => {
+                navigate("/orders");
+              });
+            }}
+          >
             Delete
           </Button>
         </Col>
@@ -59,6 +73,12 @@ function OrderDetails() {
                 <td>{order.id}</td>
               </tr>
               <tr>
+                <td>Cashier</td>
+                <td>
+                  {order.tookOrder?.firstName} {order.tookOrder?.lastName}
+                </td>
+              </tr>
+              <tr>
                 <td>Order Type</td>
                 <td>{order?.tableNumber ? "Dine-In" : "Delivery"}</td>
               </tr>
@@ -70,8 +90,11 @@ function OrderDetails() {
               ) : (
                 // Replace with the actual driver once you update the endpoint
                 <tr>
-                  <td>Delivery Driver ID</td>
-                  <td>{order.deliveryDriverId}</td>
+                  <td>Delivery Driver</td>
+                  <td>
+                    {order.deliveryDriver?.firstName}{" "}
+                    {order.deliveryDriver?.lastName}
+                  </td>
                 </tr>
               )}
               <tr>
