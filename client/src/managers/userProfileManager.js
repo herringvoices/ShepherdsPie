@@ -34,7 +34,6 @@ export const deleteUserProfile = async (userId) => {
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return await response.json();
   } catch (error) {
     console.error("Error deleting user", error);
     return null;
