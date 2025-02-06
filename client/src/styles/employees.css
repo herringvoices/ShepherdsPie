@@ -1,0 +1,23 @@
+.employees-container {
+  width: 100rem;
+}
+.employee-card {
+  width: 35rem;
+  padding: 1rem;
+  cursor: pointer;
+}
+.employee-card:hover {
+  box-shadow: 0 0 0.1rem gray;
+}
+
+.add-employee-btn {
+  margin-right: 70rem;
+  margin-bottom: 3rem;
+}
+.employee-details-edit {
+  width: 5rem;
+  margin-left: 4rem;
+}
+.employee-details-card {
+  box-shadow: 0 0 0.3rem gray;
+}

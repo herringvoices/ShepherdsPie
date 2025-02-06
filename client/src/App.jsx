@@ -4,6 +4,9 @@ import { tryGetLoggedInUser } from "./managers/authManager";
 import { Spinner } from "react-bootstrap";
 import NavBar from "./components/NavBar";
 import ApplicationViews from "./components/ApplicationViews";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fas } from "@fortawesome/free-solid-svg-icons";
+library.add(fas);
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState();
@@ -16,8 +19,10 @@ function App() {
     <Spinner animation="border" role="status" />
   ) : (
     <>
-      <NavBar loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
-      <ApplicationViews loggedInUser={loggedInUser} setLoggedInUser={setLoggedInUser} />
+      <ApplicationViews
+        loggedInUser={loggedInUser}
+        setLoggedInUser={setLoggedInUser}
+      />
     </>
   );
 }

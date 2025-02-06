@@ -2,12 +2,14 @@ using System.Security.Claims;
 using System.Text;
 using ShepherdsPie.Data;
 using ShepherdsPie.Models;
-using ShepherdsPie.Models.DTOs;
+using ShepherdsPie.DTOs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ShepherdsPie.Data;
+using ShepherdsPie.Models;
 
 namespace ShepherdsPie.Controllers;
 
