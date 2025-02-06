@@ -6,9 +6,12 @@ import NavBar from "./NavBar";
 import CreateOrder from "./Orders/CreateOrder";
 import { Container } from "react-bootstrap";
 import { OrderList } from "./orders/OrderList";
+import { EmployeeForm } from "./Employees/EmployeeForm";
+import { useState } from "react";
 import { EmployeeList } from "./Employees/EmployeeList";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
+  const [edit, setEdit] = useState(false);
   return (
     <Routes>
       <Route
@@ -88,7 +91,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path=":id/edit"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Edit Employee
+                <EmployeeForm edit={true} setEdit={setEdit} />
               </AuthorizedRoute>
             }
           />
@@ -96,7 +99,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path="create"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser} roles={["Admin"]}>
-                Create Employee
+                <EmployeeForm edit={false} setEdit={setEdit} />
               </AuthorizedRoute>
             }
           />

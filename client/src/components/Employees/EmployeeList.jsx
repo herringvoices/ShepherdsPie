@@ -28,11 +28,17 @@ export const EmployeeList = () => {
   };
   return (
     <div className="container employees-container">
+      <Button
+        className=" add-employee-btn"
+        onClick={() => navigate("/employees/create")}
+      >
+        Add Employee
+      </Button>
       <Row>
         {employees.map((employee) => (
           <Col key={employee.id}>
             <Card
-              className="employee-card"
+              className="employee-card mb-3"
               onClick={() => navigate(`/employees/${employee.id}`)}
             >
               <Card.Title className="p-2">

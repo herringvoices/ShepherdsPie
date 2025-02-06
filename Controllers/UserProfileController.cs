@@ -103,7 +103,7 @@ public class UserProfileController : ControllerBase
         userToUpdate.Address = userProfile.Address;
 
         userToUpdate.IdentityUser.Email = userProfile.IdentityUser.Email;
-        userToUpdate.IdentityUser.UserName = userProfile.IdentityUser.Email;
+        userToUpdate.IdentityUser.UserName = userProfile.IdentityUser.UserName;
 
         //remove the current role associated with the user
         IdentityUserRole<string> oldRole = _dbContext
@@ -131,7 +131,7 @@ public class UserProfileController : ControllerBase
 
     [HttpPost]
     [Authorize (Roles = "Admin")]
-    public async Task<IActionResult> NewUser([FromBody] CreateUserDTO createUser)
+    public async Task<IActionResult> NewUser([FromBody] CreateUserDTO createUser, [FromQuery, Required] string role)
     {
         //creating a new IdentityUser entity
         IdentityUser identityUser = new IdentityUser
@@ -149,7 +149,7 @@ public class UserProfileController : ControllerBase
         await _dbContext.SaveChangesAsync();
 
         //finding the role for the new user
-        var userRole = _dbContext.Roles.SingleOrDefault(r => r.Name == createUser.Role);
+        var userRole = _dbContext.Roles.SingleOrDefault(r => r.Name == role);
         if (userRole == null)
         {
             return BadRequest("Role not found");
