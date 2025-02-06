@@ -37,10 +37,12 @@ namespace ShepherdsPie.Controllers
                 return BadRequest("Invalid date format.");
             }
 
+            // Add one day so that the filter includes orders on the submitted date.
+            // This effectively sets the filter to all orders with a Date earlier than midnight of the next day.
+            DateTime filterDate = parsedDate.AddDays(1);
+
             var orders = await _context
-                .Orders
-                
-                .Include(o => o.Pizzas)
+                .Orders.Include(o => o.Pizzas)
                 .ThenInclude(p => p.Size)
                 .Include(o => o.Pizzas)
                 .ThenInclude(p => p.Cheese)
@@ -52,7 +54,7 @@ namespace ShepherdsPie.Controllers
                 .ThenInclude(to => to.IdentityUser)
                 .Include(o => o.DeliveryDriver)
                 .ThenInclude(dd => dd.IdentityUser)
-                .Where(o => o.Date <= parsedDate)
+                .Where(o => o.Date < filterDate) // Using "<" to include all orders from the submitted day
                 .OrderByDescending(o => o.Date)
                 .ToListAsync();
 
@@ -62,6 +64,7 @@ namespace ShepherdsPie.Controllers
                 TableNumber = order.TableNumber,
                 Date = order.Date,
                 TipAmount = order.TipAmount,
+                Total = order.Total, // Uses the computed property from Order Model
                 TookOrderId = order.TookOrderId,
                 TookOrder = new UserProfileDTO
                 {
@@ -69,17 +72,20 @@ namespace ShepherdsPie.Controllers
                     FirstName = order.TookOrder.FirstName,
                     LastName = order.TookOrder.LastName,
                     Address = order.TookOrder.Address,
-                    Email = order.TookOrder.IdentityUser.Email
+                    Email = order.TookOrder.IdentityUser.Email,
                 },
                 DeliveryDriverId = order.DeliveryDriverId,
-                DeliveryDriver = order.DeliveryDriver != null ? new UserProfileDTO
-                {
-                    Id = order.DeliveryDriver.Id,
-                    FirstName = order.DeliveryDriver.FirstName,
-                    LastName = order.DeliveryDriver.LastName,
-                    Address = order.DeliveryDriver.Address,
-                     Email = order.DeliveryDriver.IdentityUser.Email
-                } : null,
+                DeliveryDriver =
+                    order.DeliveryDriver != null
+                        ? new UserProfileDTO
+                        {
+                            Id = order.DeliveryDriver.Id,
+                            FirstName = order.DeliveryDriver.FirstName,
+                            LastName = order.DeliveryDriver.LastName,
+                            Address = order.DeliveryDriver.Address,
+                            Email = order.DeliveryDriver.IdentityUser.Email,
+                        }
+                        : null,
                 Pizzas = order
                     .Pizzas.Select(pizza => new PizzaDTO
                     {
@@ -87,14 +93,30 @@ namespace ShepherdsPie.Controllers
                         Id = (long)pizza.Id,
                         OrderId = pizza.OrderId,
                         Price = pizza.Price,
-                        Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
-                        Cheese = new CheeseDTO { Id = pizza.Cheese.Id, Name = pizza.Cheese.Name },
-                        Sauce = new SauceDTO { Id = pizza.Sauce.Id, Name = pizza.Sauce.Name },
+                        Size = new SizeDTO
+                        {
+                            Id = pizza.Size.Id,
+                            Name = pizza.Size.Name,
+                            Price = pizza.Size.Price,
+                        },
+                        Cheese = new CheeseDTO
+                        {
+                            Id = pizza.Cheese.Id,
+                            Name = pizza.Cheese.Name,
+                            Price = pizza.Cheese.Price,
+                        },
+                        Sauce = new SauceDTO
+                        {
+                            Id = pizza.Sauce.Id,
+                            Name = pizza.Sauce.Name,
+                            Price = pizza.Sauce.Price,
+                        },
                         Toppings = pizza
                             .Toppings.Select(topping => new ToppingDTO
                             {
                                 Id = topping.Id,
                                 Name = topping.Name,
+                                Price = topping.Price,
                             })
                             .ToList(),
                     })
@@ -130,6 +152,7 @@ namespace ShepherdsPie.Controllers
                 Id = order.Id,
                 TableNumber = order.TableNumber,
                 Date = order.Date,
+                Total = order.Total, // Uses the computed property from Order Model
                 TipAmount = order.TipAmount,
                 TookOrderId = order.TookOrderId,
                 DeliveryDriverId = order.DeliveryDriverId,
@@ -140,14 +163,30 @@ namespace ShepherdsPie.Controllers
                         Id = (long)pizza.Id,
                         OrderId = pizza.OrderId,
                         Price = pizza.Price,
-                        Size = new SizeDTO { Id = pizza.Size.Id, Name = pizza.Size.Name },
-                        Cheese = new CheeseDTO { Id = pizza.Cheese.Id, Name = pizza.Cheese.Name },
-                        Sauce = new SauceDTO { Id = pizza.Sauce.Id, Name = pizza.Sauce.Name },
+                        Size = new SizeDTO
+                        {
+                            Id = pizza.Size.Id,
+                            Name = pizza.Size.Name,
+                            Price = pizza.Size.Price,
+                        },
+                        Cheese = new CheeseDTO
+                        {
+                            Id = pizza.Cheese.Id,
+                            Name = pizza.Cheese.Name,
+                            Price = pizza.Cheese.Price,
+                        },
+                        Sauce = new SauceDTO
+                        {
+                            Id = pizza.Sauce.Id,
+                            Name = pizza.Sauce.Name,
+                            Price = pizza.Sauce.Price,
+                        },
                         Toppings = pizza
                             .Toppings.Select(topping => new ToppingDTO
                             {
                                 Id = topping.Id,
                                 Name = topping.Name,
+                                Price = topping.Price,
                             })
                             .ToList(),
                     })
@@ -165,7 +204,7 @@ namespace ShepherdsPie.Controllers
                 return BadRequest("Invalid OrderDTO received.");
             }
 
-            // Retrieve the order along with its pizzas and their related entities
+            // Retrieve the order with its pizzas and related entities
             var order = await _context
                 .Orders.Include(o => o.Pizzas)
                 .ThenInclude(p => p.Toppings)
@@ -201,55 +240,55 @@ namespace ShepherdsPie.Controllers
             // Process each pizza from the incoming DTO
             foreach (var pizzaDto in orderDto.Pizzas)
             {
-                // Safely convert to int (or 0 if it's too large for int)
+                // Safely convert the incoming ID to int (or treat as 0 if it exceeds int.MaxValue)
                 int pizzaId = (pizzaDto.Id <= int.MaxValue) ? (int)pizzaDto.Id : 0;
 
-                // Attempt to find an existing pizza
+                // Attempt to find an existing pizza in the current order
                 var pizza = order.Pizzas.FirstOrDefault(p => p.Id == pizzaId);
 
-                // If pizza doesn't exist OR the incoming ID is huge treat as new pizza
+                // If the pizza is new or has a "temporary" ID, add it as a new pizza
                 if (pizza == null || pizzaDto.Id >= TEMPORARY_ID_THRESHOLD)
                 {
                     pizza = new Pizza
                     {
                         OrderId = order.Id,
-                        Id = 0, // EF Core will generate a real ID for us
+                        SizeId = pizzaDto.Size.Id,
+                        CheeseId = pizzaDto.Cheese.Id,
+                        SauceId = pizzaDto.Sauce.Id,
+                        Toppings = new List<Topping>(),
                     };
                     order.Pizzas.Add(pizza);
-                    _context.Entry(pizza).State = EntityState.Added;
                 }
-
-                // Update pizza’s basic properties
-                pizza.SizeId = pizzaDto.Size.Id;
-                pizza.CheeseId = pizzaDto.Cheese.Id;
-                pizza.SauceId = pizzaDto.Sauce.Id;
-
-                // Ensure toppings collection is initialized
-                if (pizza.Toppings == null)
+                else
                 {
-                    pizza.Toppings = new List<Topping>();
+                    // Update the existing pizza’s properties
+                    pizza.SizeId = pizzaDto.Size.Id;
+                    pizza.CheeseId = pizzaDto.Cheese.Id;
+                    pizza.SauceId = pizzaDto.Sauce.Id;
                 }
 
-                // Convert DTO toppings into a lookup dictionary
-                var dtoToppingDict = pizzaDto.Toppings.ToDictionary(t => t.Id);
-
-                // Remove toppings that aren't in the DTO
-                var toppingsToRemove = pizza
-                    .Toppings.Where(t => !dtoToppingDict.ContainsKey(t.Id))
-                    .ToList();
-                foreach (var topping in toppingsToRemove)
-                {
-                    pizza.Toppings.Remove(topping);
-                }
-
-                // Add new toppings
+                // Process toppings:
+                // 1. Get the list of topping IDs currently linked to this pizza
                 var existingToppingIds = pizza.Toppings.Select(t => t.Id).ToList();
+                // 2. Get the list of topping IDs from the incoming DTO
+                var incomingToppingIds = pizzaDto.Toppings.Select(t => t.Id).ToList();
+
+                // Remove toppings that are no longer in the DTO
+                pizza.Toppings = pizza
+                    .Toppings.Where(t => incomingToppingIds.Contains(t.Id))
+                    .ToList();
+
+                // Add new toppings that are in the DTO but not already linked
                 foreach (var toppingDto in pizzaDto.Toppings)
                 {
                     if (!existingToppingIds.Contains(toppingDto.Id))
                     {
-                        // "Attach" existing topping by its ID
-                        pizza.Toppings.Add(new Topping { Id = toppingDto.Id });
+                        // Attach the existing topping rather than creating a new one
+                        var existingTopping = await _context.Toppings.FindAsync(toppingDto.Id);
+                        if (existingTopping != null)
+                        {
+                            pizza.Toppings.Add(existingTopping);
+                        }
                     }
                 }
             }
@@ -303,9 +342,12 @@ namespace ShepherdsPie.Controllers
                             CheeseId = pizzaDto.Cheese.Id,
                             SauceId = pizzaDto.Sauce.Id,
 
-                            // "Link" to existing toppings by Id, or create new ones if needed
+                            // Correctly link to existing toppings using the context
                             Toppings = pizzaDto
-                                .Toppings.Select(toppingDto => new Topping { Id = toppingDto.Id })
+                                .Toppings.Select(toppingDto =>
+                                    _context.Toppings.Find(toppingDto.Id)
+                                )
+                                .Where(t => t != null)
                                 .ToList(),
                         })
                         .ToList(),
