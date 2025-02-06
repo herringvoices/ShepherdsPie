@@ -14,3 +14,10 @@
   margin-right: 70rem;
   margin-bottom: 3rem;
 }
+.employee-details-edit {
+  width: 5rem;
+  margin-left: 4rem;
+}
+.employee-details-card {
+  box-shadow: 0 0 0.3rem gray;
+}
