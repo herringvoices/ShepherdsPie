@@ -11,6 +11,7 @@ import { useState } from "react";
 import { EmployeeList } from "./Employees/EmployeeList";
 import { EmployeeDetails } from "./Employees/EmployeeDetails";
 import OrderDetails from "./Orders/OrderDetails";
+import Welcome from "./Orders/Welcome";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   const [edit, setEdit] = useState(false);
@@ -34,7 +35,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
           index
           element={
             <AuthorizedRoute loggedInUser={loggedInUser}>
-              <>Welcome</>
+              <Welcome loggedInUser={loggedInUser} />
             </AuthorizedRoute>
           }
         />
