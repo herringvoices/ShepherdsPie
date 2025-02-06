@@ -3,6 +3,8 @@ import { AuthorizedRoute } from "./auth/AuthorizedRoute";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import NavBar from "./NavBar";
+import CreateOrder from "./Orders/CreateOrder";
+import { Container } from "react-bootstrap";
 import { OrderList } from "./orders/OrderList";
 import { EmployeeForm } from "./Employees/EmployeeForm";
 import { useState } from "react";
@@ -20,7 +22,9 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
               loggedInUser={loggedInUser}
               setLoggedInUser={setLoggedInUser}
             />
-            <Outlet />
+            <Container className="pt-5">
+              <Outlet />
+            </Container>
           </>
         }
       >
@@ -45,7 +49,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path="create"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                Create ORder
+                <CreateOrder loggedInUser={loggedInUser} />
               </AuthorizedRoute>
             }
           />
@@ -58,10 +62,10 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             }
           />
           <Route
-            path="edit/:id"
+            path=":id/edit"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                Edit Order
+                <CreateOrder edit={true} loggedInUser={loggedInUser} />
               </AuthorizedRoute>
             }
           />

@@ -1,12 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { Button, Navbar, Nav } from "react-bootstrap";
+import { Button, Navbar, Nav, Image } from "react-bootstrap";
 import { logout } from "../managers/authManager";
 
 export default function NavBar({ loggedInUser, setLoggedInUser }) {
   return (
-    <Navbar bg="light" expand="lg" fixed="top">
+    <Navbar bg="light" expand="lg" fixed="top" className="fs-3">
       <Navbar.Brand as={NavLink} to="/" className="mx-5">
-        Brand
+        <Image src="/public/shepherdlogo.png" style={{ width: "75px" }} />
       </Navbar.Brand>
       <Nav activeKey={"/orders"}>
         <Nav.Item>
