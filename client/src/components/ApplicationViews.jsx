@@ -7,6 +7,7 @@ import CreateOrder from "./Orders/CreateOrder";
 import { Container } from "react-bootstrap";
 import { OrderList } from "./orders/OrderList";
 import { EmployeeList } from "./Employees/EmployeeList";
+import OrderDetails from "./Orders/OrderDetails";
 
 export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
   return (
@@ -54,7 +55,7 @@ export default function ApplicationViews({ loggedInUser, setLoggedInUser }) {
             path=":id"
             element={
               <AuthorizedRoute loggedInUser={loggedInUser}>
-                View Order
+                <OrderDetails loggedInUser={loggedInUser} />
               </AuthorizedRoute>
             }
           />
